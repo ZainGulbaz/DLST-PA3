@@ -2,6 +2,8 @@
 
 Zain Gulbaz · 25280005 · Fall 2026. CPU only; seed 42.
 
+Repository: [ZainGulbaz/DLST-PA3](https://github.com/ZainGulbaz/DLST-PA3)
+
 The report is [report/PA3_Zain_Gulbaz_25280005.pdf](report/PA3_Zain_Gulbaz_25280005.pdf). It contains Q1–Q7, measured results, derivations, all required visualizations and the AI disclosure with the full supplied task prompt. See [TASK.md](TASK.md) for the original instructions and [DONE.md](DONE.md) for completion details.
 
 ## Measured results
@@ -72,4 +74,4 @@ Chronological arrays: train all 2020; validation Jan–Mar 2021; test Apr–Dec 
 
 ## AI disclosure and student actions
 
-OpenAI Codex generated and executed code, analysis, figures and report text. Claude (Anthropic) helped write TASK.md. The report includes the full prompt. Before submission, review the work, replace `GITHUB_LINK_HERE`, fill in the **Edits made by the student** paragraph truthfully, push your repository, set it public as required, rebuild the PDF after editing and submit it yourself. The agent did not submit to the LMS.
+OpenAI Codex generated and executed code, analysis, figures and report text. Claude (Anthropic) helped write TASK.md. The report includes the full prompt. Before submission, review the work, fill in the **Edits made by the student** paragraph truthfully, push your repository, set it public as required, rebuild the PDF after editing and submit it yourself. The agent did not submit to the LMS.

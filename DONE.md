@@ -37,7 +37,7 @@ Total final training time: 2223.998 seconds. Four one-epoch timing trials: 93.87
 ## Student actions before submission
 
 1. Review and understand the generated code, derivations, results and disclosure.
-2. Replace `GITHUB_LINK_HERE` on the report title page with your actual public repository URL.
+2. Repository link has been added to the title page and README: https://github.com/ZainGulbaz/DLST-PA3.
 3. Complete **Edits made by the student** truthfully in the report LaTeX source.
 4. Recompile your edited source with `XDG_CACHE_HOME="$PWD/.cache" .tools/tectonic report/PA3_Zain_Gulbaz_25280005.tex`. Do not rerun the report generator unless you also update its text, because it regenerates the source.
 5. Create your remote, push the repository, make it public as required, and submit the final PDF through LMS yourself.

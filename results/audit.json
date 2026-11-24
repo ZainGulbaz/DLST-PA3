@@ -6,7 +6,7 @@
   "figure_captions_in_pdf": 15,
   "table_captions_in_pdf": 13,
   "task_sha256": "bb85dadf9fcde7ce7655610f6965f6cb3de774d885a681ad85b9a42fa01562cd",
-  "pdf_sha256": "a03e106d3405a8d47198e22d01184d929c8cd111b3b361f42f2c880238148ca2",
+  "pdf_sha256": "919485ee707b0429adca63a0df062763d39c2e15e5ee3172aae43de75f28d70c",
   "checks": [
     "train-only normalization",
     "split boundaries and timestamp continuity",
@@ -19,6 +19,8 @@
     "PDF text, images, tables and disclosure",
     "verbatim TASK.md inclusion",
     "every original TASK.md line found in PDF after whitespace normalization",
-    "no missing glyphs or LaTeX errors"
-  ]
+    "no missing glyphs or LaTeX errors",
+    "updated repository URL verified on title page"
+  ],
+  "repository_url": "https://github.com/ZainGulbaz/DLST-PA3"
 }

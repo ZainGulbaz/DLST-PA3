@@ -31,7 +31,7 @@ for kind,result in r.items():
 tex=pathlib.Path('report/PA3_Zain_Gulbaz_25280005.tex').read_text(); pdfpath='report/PA3_Zain_Gulbaz_25280005.pdf'
 reader=PdfReader(pdfpath); text='\n'.join(p.extract_text() for p in reader.pages)
 pathlib.Path('report/extracted_report.txt').write_text(text)
-for term in ['Zain Gulbaz','25280005','GITHUB_LINK_HERE','AI Usage Disclosure','Edits made by the student','OpenAI Codex','Claude','Q1','Q2','Q3','Q4','Q5','Q6','Q7']:
+for term in ['Zain Gulbaz','25280005','https://github.com/ZainGulbaz/DLST-PA3','AI Usage Disclosure','Edits made by the student','OpenAI Codex','Claude','Q1','Q2','Q3','Q4','Q5','Q6','Q7']:
     assert term in text,term
 assert '\\VerbatimInput[fontsize=\\scriptsize,breaklines=true,breakanywhere=true]{../TASK.md}' in tex
 for term in ['TODO','TBD','INSERT HERE','???']: assert term not in text,term

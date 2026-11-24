@@ -4,7 +4,7 @@ Graphs
 Fall 2026, Assignment 3
 Zain Gulbaz
 Roll number: 25280005
-Repository: GITHUB_LINK_HERE
+Repository: https://github.com/ZainGulbaz/DLST-PA3
 CPU experiments, seed 42
 24 November 2026
 Contents
