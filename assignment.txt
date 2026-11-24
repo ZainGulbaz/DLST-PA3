@@ -1,0 +1,604 @@
+                      Lahore University of Management Sciences
+            School of Science and Engineering, Department of Artificial Intelligence
+                AI651 – Deep Learning for Space, Time and Graphs
+                                             Fall 2026
+
+                                         Assignment 3
+
+
+Date Assigned: Tuesday, Nov. 3rd , 2026                  Date Due: Sun, Nov. 22nd , 2026 11:55pm
+
+Instructions
+
+   • While discussion with your peers is strongly encouraged, complete the assignment indepen-
+     dently. In order to gain the maximum benefit, try to perform solo brainstorming before any
+     consultations. The thought process behind searching for the correct approach all on your own
+     will be invaluable.
+   • Late Submission Policy. Late solutions will be accepted with a 25% penalty for one day
+     after the deadline and a 50% penalty for the second day. No solution will be accepted after
+     this.
+   • The Professor and TAs reserve the right to hold a viva with any student if a discrepancy is
+     found.
+   • Students must submit one PDF report containing their answers, results, and findings through
+     the LMS Assignments Tab.
+   • Code. Create a GitHub repository, provide its link on the first page of the report, and set it
+     to PUBLIC at submission time.
+   • Students are welcome to use generative AI tools as partners in their learning journey. However,
+     they are required to explicitly mention the prompt, its output, and edits made at the end of
+     the report. For details, please refer to the AI policy listed on the course outline.
+
+
+
+
+                                                 1
+Questions 1–2 use simplified road-sensor examples. Questions 3–7 use the LargeST dataset.
+
+
+Question 1 – What does a sum remember?
+
+A GNN learns from summaries of its neighbours. Here we will explore how messages and aggregation
+rules shape the information available for prediction.
+Every sensor in a road network reports a trend : −1 (slowing), 0 (steady) or +1 (speeding up).
+Each sensor is connected to between one and eight neighbouring sensors. The neighbourhood N (v)
+excludes v itself.
+A graph layer computes
+                                                                               +1
+                                                                        −1            0
+                           (︂ ∑︂        )︂
+                    hv = ρ        ϕ(xu ) ,
+                                                                                    v
+                            u∈N (v)
+                                                                           0                −1
+Here xu is neighbour u’s trend. The message ϕ acts on each
+                                                                    The five light sensors form N (v);
+neighbour separately; ρ sees only their summed messages. Both
+                                                                        labels show their trends.
+may be any functions, for example small MLPs.
+
+(a) First, use an affine message ϕ(x) = wx + c. As in a GCN, apply nonlinearity after aggrega-
+    tion; omit degree normalisation here. Express the aggregated
+                                                          ∑︁         message using the number of
+    neighbours nv = |N (v)| and their total trend Sv = u∈N (v) xu . Explain why equal nv and
+    Sv force identical outputs for every choice of w, c and ρ. Construct two such neighbourhoods
+    with different numbers of steady neighbours.
+
+(b) Now explore how much information a nonlinear message can carry while still being a single
+    number. Choose its three outputs directly; no network training is needed. For this part,
+    assume 1 ≤ |N (v)| ≤ K, where K is a known positive integer. Construct ϕ(−1), ϕ(0) and ϕ(1)
+    in terms of K so that the sum of the neighbours’ messages uniquely determines the numbers
+    of slowing, steady and speeding-up neighbours. Explain how to recover all three counts. For
+    K = 8, verify your construction in NumPy on every possible triple of trend counts.
+    To get started, think of a uniquely decodable encoding that stores the three counts in separate
+    place values of one number. How large must the base be to prevent carries?
+    For a simpler target, suppose we only want to count non-steady neighbours (−1 or +1). Choose
+    a message ϕ whose sum gives this count for any neighbourhood size.
+
+
+
+
+                                                2
+Question 1 – continued
+
+(c) Finally, compare what three aggregation methods let the layer compute. Return to the same
+    road-sensor setting: one to eight neighbours, each reporting −1, 0 or +1. For this part only,
+    replace the scalar message from (b) with these fixed three-coordinate messages:
+
+                     ϕ(−1) = (1, 0, 0),    ϕ(0) = (0, 1, 0),      ϕ(+1) = (0, 0, 1).
+
+   This is called one-hot encoding: each coordinate flags one trend (slowing, steady or speeding
+   up). The sensor readings are still scalars; only their messages are now vectors.
+   Use these same messages with each method below. Sums, means and maxima operate sepa-
+   rately on each coordinate:
+                    ∑︂                           1     ∑︂
+            Sum:             ϕ(xu ),   Mean:              ϕ(xu ),       Max:    max ϕ(xu ).
+                                               |N (v)|                         u∈N (v)
+                   u∈N (v)                           u∈N (v)
+
+   In every case, ρ receives only the aggregated vector. It is not separately told the number of
+   neighbours.
+   Complete the table in your report. For each row, decide whether the method can solve the
+   task correctly for every allowed neighbourhood.
+
+   Task                                    Method     Possible?     Reason
+   (i) Count steady neighbours             Sum             ?
+                                           Mean            ?
+                                           Max             ?
+   (ii) Decide whether more than half of   Sum             ?
+   the neighbours are slowing
+                                           Mean            ?
+                                           Max             ?
+   (iii) Decide whether any neighbour is   Sum             ?
+   slowing
+                                           Mean            ?
+                                           Max             ?
+
+   Make each reason explicit:
+
+    • For Yes, state which coordinate(s) ρ uses and give the calculation or test that produces
+      the answer.
+    • For No, give two allowed neighbourhoods with the same aggregated vector but different
+      correct answers. Write that vector and both answers to show why ρ cannot distinguish
+      them.
+
+   You may reuse the same example pair to justify more than one “No”.
+
+
+
+
+                                                 3
+Question 2 – Which way is the slowdown moving?
+
+Traffic forecasts need to capture where a slowdown is moving. We will use a ring road to explore
+what gives a graph layer that sense of direction.
+Forty sensors sit around a ring road, numbered 0, . . . , 39 in the direction of traffic. Indices wrap
+around: sensor 39 is followed by sensor 0. A snapshot x(t) contains all 40 readings; xi (t) is the
+slowdown at sensor i, with 0 meaning no slowdown.
+At each time step, the entire slowdown pattern shifts one sensor against traffic without changing
+shape or magnitude. Each sensor takes the previous reading of the sensor immediately ahead:
+
+                                          xi (t + 1) = xi+1 (t).
+
+For example, if sensor 20 reads 1 and all others read 0, the next snapshot has 1 at sensor 19 and 0
+everywhere else, including sensor 20. The slowdown moves rather than disappearing. For a wider
+pattern, a sensor can remain nonzero for several steps as the pattern passes.
+
+                                                 traffic
+
+                        ···    i−2       i−1        i       i+1      i+2     ···
+
+                                     slowdown, one sensor per step
+
+
+(a) A graph layer on the ring that treats both neighbours alike predicts
+                                                        (︁                  )︁
+                              x̂i (t + 1) = a xi (t) + b xi−1 (t) + xi+1 (t) .
+
+    The same two coefficients a, b are used at every sensor.
+
+      i. Start with one snapshot: sensor 20 reads 1 and all other sensors read 0. Find a, b that
+         minimise the sum of squared prediction errors across all 40 sensors for the next snapshot.
+         Show your calculation. To get started, write the predicted and correct readings at sensors
+         19, 20 and 21; all other predictions are zero.
+     ii. Because the same coefficients are used everywhere, moving the isolated slowdown to another
+         sensor would give the same fitting problem. Keep the fitted coefficients fixed: they now
+         define a layer that can be applied to any snapshot. Explore what this layer does to a
+                                                                                2
+         wider pattern: start from the smooth bump xi (0) = e−(i−20) /8 and predict 20 steps,
+         using each predicted snapshot as the next input. Separately, shift the same initial bump
+         using the true motion rule. Plot the two sequences as heatmaps: sensor index on the
+         horizontal axis, time t = 0, . . . , 20 on the vertical axis, and the same colour scale for both.
+         In one or two sentences, compare how the bump moves and changes shape. You may use
+         np.roll(x, -1) for one true step.
+
+    The isolated slowdown is symmetric around sensor 20. If every layer uses the same rule at all
+    sensors, treats both neighbours alike, and receives no sensor IDs or direction labels, adding
+    depth or nonlinear activations preserves this symmetry: sensors 19 and 21 still receive identical
+    predictions. To capture the direction of motion, the model needs additional information. Next,
+    we will explore two ways to provide it.
+
+
+                                                    4
+Question 2 – continued
+
+(b) Next, weight the two directions separately:
+
+                               x̂i (t + 1) = a xi (t) + w− xi−1 (t) + w+ xi+1 (t).
+
+    Choose a, w− , w+ that give the exact next snapshot for every input, and verify by substitution.
+    Here the layer is told which neighbour is ahead (i + 1) and which is behind (i − 1). Explain
+    why this extra information removes the difficulty in (a).
+    How would you implement this as a 1D convolution? Give the three kernel entries in the order
+    that multiplies [xi−1 , xi , xi+1 ], and state how to handle the ring boundary.
+
+(c) Finally, try using history while keeping the neighbours’ weights equal:
+                                                   (︁                  )︁
+                         x̂i (t + 1) = a xi (t) + b xi−1 (t) + xi+1 (t) + c xi (t − 1).
+
+    Choose new coefficients a, b, c; they need not match part (a).
+
+      i. The previous and current snapshots come from the stated backward-motion rule. Find
+         a, b, c that predict the next snapshot exactly for every such pair. Show why they work.
+         Hint: where has the reading previously at sensor i moved to at time t? Use this to rewrite
+         xi (t − 1) in terms of a current reading.
+     ii. Suppose instead the pattern moves forwards: xi (t + 1) = xi−1 (t). The previous snapshot
+         now also follows this forward-motion rule. Check whether the same coefficients from (i)
+         still work, showing your substitution.
+    iii. Explain how the previous snapshot helps the model distinguish the two directions, even
+         though the spatial neighbours still have equal weights.
+
+
+
+
+                                                     5
+The following background and dataset apply to Questions 3–7.
+
+
+Background and Motivation
+
+Traffic forecasting is an important application of spatio-temporal machine learning. Given historical
+traffic measurements from sensors installed across a road network, the objective is to predict traffic
+conditions at future timestamps.
+Traditional time-series forecasting models, such as ARIMA, LSTM, and temporal convolutional
+networks, primarily learn patterns along the temporal dimension. However, traffic conditions at
+different locations are not independent. Congestion at one location may affect nearby road seg-
+ments, and traffic conditions may propagate through connected regions.
+To capture these dependencies, we can represent the traffic sensor network as a graph. A graph is
+defined as
+                                          G = (V, E),
+where V represents the set of nodes and E represents the set of edges connecting those nodes. In
+our traffic forecasting problem, each node represents a traffic sensor, and edges represent spatial
+relationships between sensors.
+
+
+Understanding Graphs Through an Example
+
+Consider a simplified road network containing four traffic sensors, S1 , S2 , S3 , S4 . The graph contains
+the connections
+                            E = {(S1 , S2 ), (S1 , S4 ), (S2 , S3 ), (S2 , S4 )}.
+We represent these connections using an adjacency matrix A. For an unweighted graph,
+                                   {︄
+                                     1, if nodes i, j are connected,
+                            Aij =
+                                     0, otherwise.
+
+The adjacency matrix for this example is
+                                            ⎡                ⎤
+                                             0      1   0   1
+                                            ⎢1      0   1   1⎥
+                                          A=⎢
+                                            ⎣0
+                                                             ⎥.
+                                                    1   0   0⎦
+                                             1      1   0   0
+
+The entry A12 = 1 indicates that sensors S1 and S2 are connected, while A13 = 0 indicates no direct
+connection between S1 and S3 . Since this example is undirected, A = A⊤ . For directed graphs,
+Aij and Aji need not be equal.
+
+
+Weighted Adjacency Matrices
+
+Not all sensor connections are equally important. Two sensors connected by a short road segment
+may have a stronger spatial relationship than sensors separated by a longer distance. A weighted
+
+
+
+                                                    6
+adjacency matrix assigns a nonnegative strength to each connection, for example
+                                                (︄       )︄
+                                                    d2ij
+                                      Aij = exp − 2 ,
+                                                    σ
+
+where dij is the distance between sensors and σ controls how rapidly connection strength decreases
+with distance. A threshold may be applied to remove weak connections. Thus, the adjacency
+matrix contains information about which sensors are related and how strongly they are related.
+
+
+How Graph Neural Networks Use Adjacency
+
+A Graph Convolutional Network (GCN) updates the representation of each node by aggregating
+information from its neighbors. A common GCN operation is
+                                         (︂                          )︂
+                              H (l+1) = σ D̃−1/2 ÃD̃−1/2 H (l) W (l) ,
+
+where:
+
+   • Ã = A + I includes self-loops;
+   • D̃ is the diagonal degree matrix of Ã;
+   • H (l) contains node features at layer l;
+   • W (l) contains learnable weights;
+   • σ is an activation function.
+
+This expression applies directly to a symmetric, nonnegative adjacency matrix. Directed graphs
+may require different normalization or message-passing conventions.
+The key idea is that each node learns from its own features and those of its graph neighbors. In
+traffic forecasting, this allows a sensor’s representation to incorporate traffic measurements from
+other sensors connected through the road network.
+
+
+Dataset: LargeST
+
+You will use the LargeST (Large-Scale Traffic Forecasting) dataset, which contains traffic measure-
+ments collected from highway sensors in California.
+Dataset sources:
+
+   • Official LargeST repository: https://github.com/liuxu77/LargeST
+   • LargeST dataset download: https://www.kaggle.com/datasets/liuxu77/largest
+
+For this assignment, use the San Diego (SD) subset, containing 716 traffic sensors.
+
+
+
+
+                                                7
+                    Property                Required configuration
+                    Region                  San Diego
+                    Number of nodes         716
+                    Years                   2020 and 2021
+                    Original sampling       5 minutes
+                    Assignment sampling     15 minutes
+                    Prediction variable     Traffic flow
+                    Graph                   Provided road-distance adjacency
+                    Input history           8 timestamps (2 hours)
+                    Prediction horizon      4 timestamps (1 hour)
+
+The data can be represented as
+                                          X ∈ RT ×N ×F ,
+where T is the number of timestamps, N = 716, and F = 1 when using traffic flow alone. For an
+input window of eight timestamps,
+                                     Xinput ∈ R8×716×1 .
+The corresponding target is
+                                          Y ∈ R4×716×1 .
+Your model must forecast the next four 15-minute intervals for all 716 sensors.
+
+
+Question 3 – Dataset Preparation and Graph Construction
+
+Before implementing a GNN, you must understand how traffic observations are associated with
+nodes in a graph.
+
+
+Q3(a) – Data Extraction and Resampling
+
+Download LargeST and extract the San Diego traffic sensor measurements for 2020 and 2021.
+The original traffic measurements are sampled every five minutes. Convert them into 15-minute
+intervals. For an average traffic measurement,
+                                                     2
+                                                1   ∑︂
+                                      Xt15min =            5min
+                                                          X3t+k .
+                                                3
+                                                    k=0
+If the measurements represent interval vehicle counts rather than average flow rates, use summation
+instead. Document your choice and ensure that the aggregation preserves the intended physical
+units.
+Required:
+
+  1. Extract all 716 San Diego sensors.
+  2. Retain observations from 2020 and 2021.
+  3. Resample the traffic measurements to 15-minute intervals.
+  4. Identify missing values and explain how they are handled.
+  5. Plot the traffic measurements for three selected sensors over one week.
+
+                                                8
+Q3(b) – Constructing the Traffic Graph
+
+The LargeST dataset provides a road-distance adjacency matrix describing relationships between
+traffic sensors. Extract the adjacency submatrix corresponding to the 716 San Diego sensors:
+
+                                         ASD ∈ R716×716 .
+
+You must ensure that the sensor ordering in the adjacency matrix matches the ordering of sensors
+in the traffic measurement tensor.
+Required:
+
+  1. Report the number of nodes and nonzero edges.
+  2. Determine whether the adjacency matrix is symmetric.
+  3. Plot the adjacency matrix as a heatmap.
+  4. Compute the number of neighbors of each sensor and plot its distribution.
+  5. Explain what a nonzero entry Aij represents.
+
+
+Q3(c) – Understanding Graph Neighborhoods
+
+Consider a sensor vi . Its one-hop neighborhood is
+
+                                      N (i) = { j : Aij ̸= 0 }.
+
+A two-hop neighborhood includes nodes reachable from i through paths containing at most two
+edges.
+Select one sensor from the dataset and identify its one-hop and two-hop neighbors. Answer the
+following:
+
+   • Why might neighboring sensors help predict traffic at the selected sensor?
+   • What is the difference between one-hop and two-hop information aggregation?
+   • Could using too many graph convolution layers negatively affect performance? Explain.
+
+
+Question 4 – Spatio-Temporal Traffic Forecasting
+
+You will now implement a spatio-temporal graph neural network. The model should learn two
+types of dependencies:
+
+   • Temporal dependencies: how traffic evolves over consecutive timestamps.
+   • Spatial dependencies: how traffic measurements at different sensors are related through
+     the graph.
+
+
+
+
+                                                 9
+Q4(a) – Preparing Forecasting Windows
+
+For each prediction time t, construct
+
+                                        Xt = [xt−7 , xt−6 , . . . , xt ]
+
+and the prediction target
+                                   Yt = [xt+1 , xt+2 , xt+3 , xt+4 ],
+where each xt ∈ R716×1 .
+Use chronological splits:
+
+   • Training: January–December 2020
+   • Validation: January–March 2021
+   • Testing: April–December 2021
+
+Normalize using statistics computed only from the training set. Ensure that forecasting windows
+do not cross split boundaries.
+
+
+Q4(b) – Implementing the Forecasting Architecture
+
+Implement a lightweight spatio-temporal forecasting model with three components.
+Component 1 – Temporal encoder. Apply a temporal convolution to each sensor’s historical
+observations to obtain a feature representation
+
+                                            Z = ftemporal (X),
+
+with Z ∈ RB×N ×d . Here B is the batch size and d is the hidden feature dimension.
+Component 2 – Spatial graph convolution. Apply graph convolution to the temporal repre-
+sentations:                             (︂     )︂
+                               H = ReLU ÂZWg ,
+
+where Â is a normalized adjacency matrix. The graph multiplication operates across the node
+dimension, independently for each batch item.
+Component 3 – Forecast head. Use a linear layer or a small MLP to predict the next four
+traffic measurements for every sensor:
+
+                                              Ŷ = fhead (H).
+
+Implementation requirements:
+
+  1. Implement a temporal convolutional encoder.
+  2. Implement at least one graph convolution layer.
+  3. Implement a forecasting head.
+  4. Train using MAE or MSE loss.
+
+
+                                                      10
+  5. Report validation and test MAE and RMSE in the original traffic-flow units.
+
+For CPU feasibility, use hidden dimensions of 16–32 and a lightweight architecture. More complex
+architectures are not required.
+
+
+Q4(c) – Temporal-Only Baseline
+
+Implement a temporal-only model using the same temporal encoder and forecasting head, but
+without graph convolution. Compare its forecasting performance with your graph-based model.
+Explain whether explicitly modeling spatial dependencies improves forecasting accuracy.
+
+
+Question 5 – Fixed versus Learnable Adjacency Matrices
+
+In Question 4, the graph was constructed using physical road-network relationships. However,
+physical proximity does not necessarily capture every traffic dependency. For example, two sensors
+may be geographically distant but experience similar traffic patterns because they serve related
+commuting routes.
+This motivates adaptive graph structure learning, where the model learns relationships between
+sensors directly from data. You will investigate three approaches.
+
+
+Q5(a) – Fixed Adjacency
+
+Use the original LargeST road-distance adjacency matrix. For a symmetric nonnegative graph, a
+common normalization is
+                                   Â = D−1/2 (A + I)D−1/2 ,
+where D is the degree matrix of A + I. For a directed graph, choose and document an appropriate
+directed normalization instead of assuming symmetry.
+Train the forecasting architecture using this fixed adjacency matrix. The graph must remain
+unchanged throughout training. Report MAE, RMSE, and training time.
+
+
+Q5(b) – Learnable Adjacency
+
+Instead of using the provided graph, construct a graph whose relationships are learned during
+training. Introduce two trainable node embedding matrices
+
+                                        E1 , E2 ∈ RN ×de ,
+
+where de is the node embedding dimension. Construct an adaptive adjacency matrix
+                                               (︂    (︂     )︂)︂
+                            Aadaptive = Softmax ReLU E1 E2⊤ ,
+
+with the softmax applied row-wise. The embedding matrices are initialized randomly and updated
+using backpropagation. Unlike the fixed adjacency, the learned adjacency can connect sensors that
+are not physically adjacent.
+Required:
+
+                                               11
+  1. Implement the learnable node embeddings.
+  2. Construct the adaptive adjacency matrix.
+  3. Train the same forecasting architecture using adaptive adjacency.
+  4. Visualize the learned adjacency matrix.
+  5. Compare its forecasting accuracy with fixed adjacency.
+
+For computational efficiency, you may retain the top k = 10 or 20 learned neighbors per node. If
+sparsification is used, explain whether it is applied before or after normalization and how gradients
+propagate.
+
+
+Q5(c) – Hybrid Adjacency
+
+A hybrid graph combines the original road-network relationships with learned dependencies. One
+possible formulation is
+                             Ahybrid = αAfixed + (1 − α)Aadaptive ,
+where α ∈ [0, 1]. Normalize both adjacency matrices consistently before combining them. You may
+use a fixed value such as α = 0.5, or learn α during training.
+Train the same forecasting architecture using the hybrid graph, and compare the performance of
+fixed, adaptive, and hybrid adjacency.
+All three experiments must use the same temporal encoder, forecasting head, dataset splits, and
+training protocol. This ensures that differences in performance can be attributed primarily to graph
+construction.
+
+
+Question 6 – Experimental Analysis and Interpretation
+
+Q6(a) – Forecasting Comparison
+
+Report your results using the following table.
+
+
+                Model             Adjacency      MAE      RMSE       Training time
+                Temporal-only     None
+                STGNN             Fixed
+                STGNN             Adaptive
+                STGNN             Hybrid
+
+Include plots showing predicted versus actual traffic flow for at least three sensors.
+
+
+Q6(b) – Graph Structure Analysis
+
+Analyze the learned graph by answering:
+
+  1. Are the strongest learned connections also present in the original road-distance graph?
+
+                                                 12
+  2. Do learned connections tend to occur between geographically nearby sensors?
+  3. Can the learned graph capture dependencies absent from the physical graph?
+  4. Why might a learned adjacency matrix perform better or worse than a fixed adjacency matrix?
+
+Support your analysis with at least one graph visualization or quantitative comparison.
+
+
+Q6(c) – Critical Discussion
+
+Discuss the following:
+
+   • Does a lower forecasting error necessarily mean that the learned graph represents actual road
+     connectivity?
+   • Why might a hybrid graph outperform either fixed or adaptive adjacency alone?
+   • What are the limitations of using a static graph for traffic forecasting, given that traffic
+     dependencies may change throughout the day?
+
+
+Question 7 – Reproducibility and Reporting
+
+Submit a concise technical report containing your implementation choices, training configuration,
+results, visualizations, and discussion. Your submission must include:
+
+   • Source code with instructions to reproduce the experiments.
+   • Model hyperparameters, training epochs, and random seed.
+   • The final comparison table.
+   • At least one adjacency visualization.
+   • Predicted versus actual traffic plots.
+   • Hardware specifications and measured training times.
+
+
+Important Instructions
+
+   • Students must use the LargeST-SD dataset and the specified temporal splits.
+   • GPU acceleration is optional, not required.
+   • Students may use PyTorch Geometric for standard graph operations, but must implement
+     and explain their adaptive adjacency construction..
+   • Students must not use validation or test data to construct training-dependent features, learned
+     graph relationships, or normalization statistics.
+   • A fixed random seed should be used for reproducibility.
+   • Evaluation must be performed on the same test period for all models.
+
+
+
+                                                13
+

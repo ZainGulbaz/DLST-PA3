@@ -1,0 +1,130 @@
+{
+  "triples_checked": 164,
+  "rows": [
+    {
+      "task": 1,
+      "method": "sum",
+      "possible": true,
+      "witness": null
+    },
+    {
+      "task": 1,
+      "method": "mean",
+      "possible": false,
+      "witness": {
+        "counts1": [
+          0,
+          1,
+          0
+        ],
+        "answer1": 1,
+        "counts2": [
+          0,
+          2,
+          0
+        ],
+        "answer2": 2,
+        "aggregate": [
+          "0",
+          "1",
+          "0"
+        ]
+      }
+    },
+    {
+      "task": 1,
+      "method": "max",
+      "possible": false,
+      "witness": {
+        "counts1": [
+          0,
+          1,
+          0
+        ],
+        "answer1": 1,
+        "counts2": [
+          0,
+          2,
+          0
+        ],
+        "answer2": 2,
+        "aggregate": [
+          "0",
+          "1",
+          "0"
+        ]
+      }
+    },
+    {
+      "task": 2,
+      "method": "sum",
+      "possible": true,
+      "witness": null
+    },
+    {
+      "task": 2,
+      "method": "mean",
+      "possible": true,
+      "witness": null
+    },
+    {
+      "task": 2,
+      "method": "max",
+      "possible": false,
+      "witness": {
+        "counts1": [
+          1,
+          0,
+          7
+        ],
+        "answer1": false,
+        "counts2": [
+          2,
+          0,
+          1
+        ],
+        "answer2": true,
+        "aggregate": [
+          "1",
+          "0",
+          "1"
+        ]
+      }
+    },
+    {
+      "task": 3,
+      "method": "sum",
+      "possible": true,
+      "witness": null
+    },
+    {
+      "task": 3,
+      "method": "mean",
+      "possible": true,
+      "witness": null
+    },
+    {
+      "task": 3,
+      "method": "max",
+      "possible": true,
+      "witness": null
+    }
+  ],
+  "least_squares": [
+    0.0,
+    0.4999999999999999
+  ],
+  "isolated_predictions": [
+    0.4999999999999999,
+    0.0,
+    0.4999999999999999
+  ],
+  "isolated_targets": [
+    1.0,
+    0.0,
+    0.0
+  ],
+  "directional_error": 0.0,
+  "history_backward_error": 4.440892098500626e-16,
+  "history_forward_error": 2.220446049250313e-16
+}

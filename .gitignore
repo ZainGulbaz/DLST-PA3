@@ -1,0 +1,13 @@
+data/raw/
+data/processed/
+.venv/
+.cache/
+checkpoints/
+logs/
+__pycache__/
+*.pyc
+.python/
+.kaggle-venv/
+.tools/
+scripts/reference/LargeST_paper.pdf
+scripts/reference/LargeST_paper.txt

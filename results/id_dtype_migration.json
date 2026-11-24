@@ -1,0 +1,16 @@
+{
+  "status": "PASS",
+  "change": "IDs object dtype to Unicode; all numeric arrays byte-identical",
+  "numeric_sha256": {
+    "train": "c7706a7e79bfa566323714544b42f81e5fad497800cd3025aab4e651687fd8d7",
+    "val": "96832332c01120f2e0bb7122c3ba1ebf66f63b16d5f1344877c6b23b1098c7f5",
+    "test": "31abd1794389fc73b9be780d4bb07a1116ce623e3084be063e6a2f44be52f01a",
+    "train_times": "f4aae951c131c8fab1a49b080c93132b2c5d2abc4f56aaf50e82c3e89973529a",
+    "val_times": "d53e80c75066fc421c2d51d909eda159cb192c28b220523d1afea973fbc46d0b",
+    "test_times": "df5a051b57a3323c961b4effa04f0a5a233e56430140c802a4b8e27ffc037907",
+    "mean": "108436abebdb6143307002177cd3e020279f7d938ed68092c30ab52d4d298e4c",
+    "std": "b5bbbb185464257b4dee833c6532bf606fb25c5e6a2202c25c6c10f97fef8218",
+    "adj": "fed34253b97456d278feef8cb3bd19963ebb1be071958d7c29db121a9a488ff3",
+    "graph_indices": "ffc17897db0c7ff68546963a15ca084f8303f886c1ca1592c8f0b9a1bd7c63f1"
+  }
+}

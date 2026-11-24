@@ -1,0 +1,6 @@
+{
+  "temporal": "shape, finite outputs, gradients and normalization passed",
+  "fixed": "shape, finite outputs, gradients and normalization passed",
+  "adaptive": "shape, finite outputs, gradients and normalization passed",
+  "hybrid": "shape, finite outputs, gradients and normalization passed"
+}

@@ -1,0 +1,24 @@
+{
+  "status": "PASS",
+  "pages": 25,
+  "figure_references": 15,
+  "embedded_images": 15,
+  "figure_captions_in_pdf": 15,
+  "table_captions_in_pdf": 13,
+  "task_sha256": "bb85dadf9fcde7ce7655610f6965f6cb3de774d885a681ad85b9a42fa01562cd",
+  "pdf_sha256": "a03e106d3405a8d47198e22d01184d929c8cd111b3b361f42f2c880238148ca2",
+  "checks": [
+    "train-only normalization",
+    "split boundaries and timestamp continuity",
+    "all 716 node IDs",
+    "fixed graph unchanged",
+    "row normalization",
+    "metric pooling and entry counts",
+    "best-validation checkpoint selection",
+    "saved prediction consistency",
+    "PDF text, images, tables and disclosure",
+    "verbatim TASK.md inclusion",
+    "every original TASK.md line found in PDF after whitespace normalization",
+    "no missing glyphs or LaTeX errors"
+  ]
+}

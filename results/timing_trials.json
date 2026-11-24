@@ -1,0 +1,70 @@
+{
+  "temporal": {
+    "model": "temporal",
+    "epochs": 1,
+    "best_epoch": 1,
+    "max_epochs": 1,
+    "training_seconds": 17.535950526595116,
+    "history": [
+      {
+        "epoch": 1,
+        "train_mae_normalized": 0.15432488567761254,
+        "val_mae_normalized": 0.15178666059389143,
+        "training_epoch_seconds": 15.525769643485546,
+        "epoch_seconds": 17.53361713513732
+      }
+    ],
+    "parameters": 916
+  },
+  "fixed": {
+    "model": "fixed",
+    "epochs": 1,
+    "best_epoch": 1,
+    "max_epochs": 1,
+    "training_seconds": 22.146410949528217,
+    "history": [
+      {
+        "epoch": 1,
+        "train_mae_normalized": 0.15345562135791438,
+        "val_mae_normalized": 0.14333608762773284,
+        "training_epoch_seconds": 19.642647620290518,
+        "epoch_seconds": 22.145427029579878
+      }
+    ],
+    "parameters": 1172
+  },
+  "adaptive": {
+    "model": "adaptive",
+    "epochs": 1,
+    "best_epoch": 1,
+    "max_epochs": 1,
+    "training_seconds": 24.61426666751504,
+    "history": [
+      {
+        "epoch": 1,
+        "train_mae_normalized": 0.14971811964630657,
+        "val_mae_normalized": 0.13272896451486213,
+        "training_epoch_seconds": 21.908311538398266,
+        "epoch_seconds": 24.61311211809516
+      }
+    ],
+    "parameters": 15492
+  },
+  "hybrid": {
+    "model": "hybrid",
+    "epochs": 1,
+    "best_epoch": 1,
+    "max_epochs": 1,
+    "training_seconds": 29.573686439543962,
+    "history": [
+      {
+        "epoch": 1,
+        "train_mae_normalized": 0.15033182681582577,
+        "val_mae_normalized": 0.13341826289876701,
+        "training_epoch_seconds": 26.356353152543306,
+        "epoch_seconds": 29.57254447788
+      }
+    ],
+    "parameters": 15493
+  }
+}

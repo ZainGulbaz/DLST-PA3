@@ -1,0 +1,18 @@
+{
+  "seed": 42,
+  "threads": 40,
+  "torch": "2.14.1+cpu",
+  "python": "3.10.12",
+  "hidden": 16,
+  "embedding_dim": 10,
+  "top_k": 20,
+  "batch_size": 64,
+  "learning_rate": 0.001,
+  "patience": 5,
+  "max_epochs": 30,
+  "timing_trial_seconds": 93.87031458318233,
+  "budget_seconds": 7200,
+  "normalization": "global train-only z-score",
+  "residual": "last reading added equally in all models",
+  "fixed_normalization": "row-normalized A+I (directed adjacency)"
+}
